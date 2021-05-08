@@ -1,2 +1,7 @@
 # created by virtualenv automatically
 venv/*
+arithmetic/__pycache__/
+arithmetic/parser_v2.py
+arithmetic/test-output/
+test-output/
+

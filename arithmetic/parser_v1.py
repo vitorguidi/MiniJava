@@ -23,7 +23,7 @@ from graphviz import Digraph
 
 #for clarity sake
 # start = final expr
-# expr = OP start expr | eps
+# expr = OP final expr | eps
 
 class SyntaxError(Exception):
     ''' Raised when syntax rules are breached '''
@@ -51,8 +51,7 @@ class AST:
 class Parser:
 
     def __init__(self, tokenStream):
-        parsedStream = self._parse(tokenStream)
-        self.AST = AST(parsedStream.left, parsedStream.op, parsedStream.right)
+        self.AST = self._parse(tokenStream)
 
     def _parse(self, tokenStream):
         return self._start(tokenStream)
@@ -62,21 +61,22 @@ class Parser:
         cur_token = tokenStream.get()
         
         if cur_token.toktype == 'NUMBER':
-            print('getting number ' + str(cur_token.value))
             left, tokenStream = tokenStream.consume()
         else:
             raise SyntaxError('Expected NUMBER, got {}'.format(cur_token.toktype))
 
-        right = self._expr(tokenStream, cur_token)
+        base_ast = AST(cur_token.value, 'NUMBER', None)
+
+        right = self._expr(tokenStream, base_ast)
 
         return right
 
-    def _expr(self, tokenStream, prev_token):
+    def _expr(self, tokenStream, prev_ast):
 
         cur_token = tokenStream.get()
 
         if cur_token.toktype == 'END':
-            return AST(prev_token.value, 'NUMBER', None)
+            return None
 
         elif cur_token.toktype == 'OP1':
             op, tokenStream = tokenStream.consume()
@@ -84,17 +84,22 @@ class Parser:
         else:
             raise SyntaxError('Expected OP1, found {}'.format(cur_token.toktype))
 
-        left_expr = AST(prev_token.value, prev_token.toktype, None)
-
         right_number, tokenStream = tokenStream.consume()
-        print('right number = ' + str(right_number.value))
+        local_right_ast = AST(right_number.value, 'NUMBER', None)
 
-        right_expr = self._expr(tokenStream, right_number)
+        left_expr = AST(prev_ast, op.value, local_right_ast)
 
-        return AST(left_expr, op.value, right_expr)
+        # print('right number = ' + str(right_number.value))
+
+        right_expr = self._expr(tokenStream, left_expr)
+
+        if right_expr == None:
+            return left_expr
+
+        return right_expr
 
                 
-data = '1 + 23 - 4 + 2 - 2'
+data = '1 -2 + 3 - 4'
 tokenStream = getTokenStream(data)
 parser = Parser(tokenStream)
 print(parser.AST.evaluate())
@@ -112,29 +117,25 @@ def dfs(ast):
 
     ini+= 1
 
-    if type(ast) == int:
-        return str(int)
-    elif ast.op == 'NUMBER':
-        name = str(ini) + ' : NUMBER ' + str(ast.left)
+    local_num = str(ini)
+
+    if ast.op == 'NUMBER':
+        name = str(ast.left)
     else:
-        name = str(ini) + ' : OP = ' + ast.op
+        name = ast.op
    
-    dot.node(str(ini), name)
+    dot.node(name=str(ini), label=name)
    
     if type(ast.left) == AST:
         left_node = dfs(ast.left)
-        print('name = ' + name)
-        print('left node  = ' + left_node)
-        dot.edge(name, left_node)
+        dot.edge(local_num, left_node)
 
     if type(ast.right) == AST:
         right_node = dfs(ast.right)
-        print('name = ' + name)
-        print('right node = ' + right_node)
-        dot.edge(name, right_node)
+        dot.edge(local_num, right_node)
 
-    return name
+    return local_num
 
 dfs(parser.AST)
 
-dot.render('test-output/ast_dump.gv', view=True)
+dot.render('test-output/ast_dump.gv', view=True)        
