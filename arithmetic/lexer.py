@@ -76,11 +76,3 @@ def getTokenStream(data):
     lexer = lex.lex()
     lexer.input(data)
     return tokenStream(lexer)
-
-# data = '1 + 23 * 4 + 2^(3*5 + 2)'
-# #print( getTokenStream(data) )
-
-# aux = (getTokenStream(data))
-# while aux != None:
-#     print(aux.token)
-#     _, aux = aux.consume()
