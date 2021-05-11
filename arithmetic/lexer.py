@@ -37,6 +37,8 @@ tokens = (
     'OP3',
     'OP2',
     'OP1',
+    'ASSIGN',
+    'VARIABLE',
     'LPAREN','RPAREN',
     'END'
 )
@@ -48,6 +50,8 @@ t_OP2 = r'\*|/'
 t_OP3 = r'\^'
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
+t_ASSIGN = r'\='
+t_VARIABLE = r'[a-z]+'
 
 #ignored characters
 t_ignore = " \t"    #space and tab
