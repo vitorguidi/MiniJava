@@ -1,12 +1,66 @@
 import ply.lex as lex
-import re
+from enum import Enum
 
-class token:
+
+class TokenTypes(Enum):
+   
+    #statements and ops
+    IF = 'IF',
+    ELSE = 'ELSE',
+    WHILE = 'WHILE',
+    FOR = 'FOR',
+    PLUSEQUALS = 'PLUSEQUALS',
+    MINUSEQUALS = 'MINUSEQUALS',
+    PRINTLN = 'PRINTLN',
+    ASSIGN = 'ASSIGN',
+    OP1 = 'OP1',   # * /
+    OP2 = 'OP2',   # + -
+    OP3 = 'OP3',   # > >= < <= == !=
+    NOT = 'NOT',
+    AND = 'AND',
+    OR = 'OR',
+
+    #types and stuff
+    MAIN ='MAIN',
+    CLASS = 'CLASS',
+    THIS = 'THIS',
+    NEW = 'NEW',
+    EXTENDS = 'EXTENDS',
+    INTEGER = 'INTEGER',
+    BOOLEAN = 'BOOLEAN',
+    STRING = 'STRING',
+    PUBLIC = 'PUBLIC',
+    STATIC = 'STATIC',
+    VOID = 'VOID',
+    RETURN = 'RETURN',
+    LENGTH = 'LENGTH',
+
+    #literals
+    INTEGER_LITERAL = 'INTEGER_LITERAL',
+    STRING_LITERAL = 'STRING_LITERAL',
+    TRUE ='TRUE',
+    FALSE = 'FALSE',
+    ID = 'ID',
+
+    #separators
+    LPAREN = 'LPAREN',
+    RPAREN = 'RPAREN',
+    LSQPAREN = 'LSQPAREN',
+    RSQPAREN = 'RSQPAREN',
+    LBRACE = 'LBRACE',
+    RBRACE = 'RBRACE',
+    SEMICOLON = 'SEMICOLON',
+    COMMA = 'COMMA',
+    DOT = 'DOT'
+
+class Token:
     def __init__(self, toktype, token_value):
-        self.toktype = toktype
+        for item in TokenTypes:
+            if item.value[0] == toktype:
+                self.type = item
         self.value = token_value
     def __str__(self):
-        return ("{} - {}".format(self.toktype, str(self.value)) )
+        return ("{} - {}".format(self.type, str(self.value)) )
 
 class tokenStream:
     def __init__(self, lexer):
@@ -17,7 +71,7 @@ class tokenStream:
         tok = lexer.token()
 
         while tok:
-            self.tokens.append(token(tok.type, tok.value))
+            self.tokens.append(Token(tok.type, tok.value))
             tok = lexer.token()
 
     def __str__(self):
@@ -25,38 +79,39 @@ class tokenStream:
 
     def peep(self, lookahead):
         try:
-            return self.tokens[self.pos + lookahead]
+            return self.tokens[self.pos + lookahead].type
         except IndexError:
-            return token("END","END")
+            return None
     
     def consume(self):
-        ans = self.tokens[self.pos]
-        self.pos += 1
+        try:
+            ans = self.tokens[self.pos]
+            self.pos += 1
+        except IndexError:
+            return None
         return ans
 
 tokens = (
+
     #statement blocks    
     'IF', 'ELSE',
     'WHILE', 'FOR',
-    'PRINTLN',
-
-    #bin ops
-    'ASSIGN',
-    'LESS', 'LESSOREQ',
-    'GREATER', 'GREATEROREQ',
-    'EQUAL', 'DIFFERENT',
     'PLUSEQUALS', 'MINUSEQUALS',
-    'PLUS', 'MINUS',
-    'MULT', 'DIV',
-    'AND', 'OR',
+    'PRINTLN',
+    'ASSIGN',
 
-    #unary ops
-    'NEGATE',
-    'UMINUS',
+    #ops
+    #all left associative
+    'OP1',   # * /
+    'OP2',   # + -
+    'OP3',   # > >= < <= == !=
+    'NOT',
+    'AND',
+    'OR',
 
     #types and stuff
     'MAIN', 'CLASS',
-    'THIS', 'NEW',
+    'THIS', 'NEW', 'EXTENDS',
     'INTEGER', 'BOOLEAN', 'STRING',
     'PUBLIC', 'STATIC', 'VOID',
     'RETURN',
@@ -72,16 +127,13 @@ tokens = (
     'LSQPAREN', 'RSQPAREN',
     'LBRACE', 'RBRACE',
     'SEMICOLON', 'COMMA',
-    'DOT',
+    'DOT'
 
-
-    'END'
 )
 
 #tokens
 
 reserved = {
-    #statements
     'for' : 'FOR',
     'while' : 'WHILE',
     'if' : 'IF',
@@ -93,6 +145,7 @@ reserved = {
     'void' : 'VOID',
     'this' : 'THIS',
     'new' : 'NEW',
+    'extends' : 'EXTENDS',
     'return' : 'RETURN',
     'int' : 'INTEGER',
     'String' : 'STRING',
@@ -114,24 +167,17 @@ t_COMMA = r','
 t_DOT = r'\.'
 
 #binops
-t_LESSOREQ = r'<='
-t_LESS = r'<'
-t_GREATEROREQ = r'>='
-t_GREATER = r'>'
-t_EQUAL = r'=='
-t_DIFFERENT = r'!='
-t_PLUSEQUALS = r'\+='
-t_MINUSEQUALS = r'-='
-t_ASSIGN = r'='
-t_PLUS = r'\+'
-t_MINUS = r'-'  #redundante for unOp as well
-t_MULT = r'\*'
-t_DIV = r'/'
+t_OP1 = r'\*|/'
+t_OP2 = r'\+|-'
+t_OP3 = r'<=|<|>=|>|==|!='
+t_NOT = r'!'
 t_AND = r'&&'
 t_OR = r'\|\|'
 
-#unops
-t_NEGATE = r'!'
+#stmts
+t_PLUSEQUALS = r'\+='
+t_MINUSEQUALS = r'-='
+t_ASSIGN = r'='
 
 #ignored characters
 t_ignore = "\t "    #space and tab
@@ -171,7 +217,6 @@ def getTokenStream(data):
     lexer = lex.lex()
     lexer.input(data)
     return tokenStream(lexer)
-
 
 with open("../samples/smallTest.java") as file:
     data='\n'.join(file.readlines())

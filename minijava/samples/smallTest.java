@@ -23,7 +23,11 @@ class Coiso {
             banana -= 5;
         }
 
-        return batata*barata-banana+macacaco/5;
+        return batata*barata-banana+macacaco/5  ;
     }
 
+}
+
+class Batata extends Coiso {
+    
 }
