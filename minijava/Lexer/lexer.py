@@ -1,3 +1,4 @@
+from typing import Tuple
 import ply.lex as lex
 from enum import Enum
 
@@ -55,8 +56,8 @@ class TokenTypes(Enum):
 
 class Token:
     def __init__(self, toktype, token_value):
-        for item in TokenTypes:
-            if item.value[0] == toktype:
+        for item in TokenTypes:       
+            if item.value[0] == toktype or item.value == toktype:
                 self.type = item
         self.value = token_value
     def __str__(self):
@@ -157,6 +158,7 @@ reserved = {
 }
 
 #separators
+t_DOT = r'\.'
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
 t_LSQPAREN = r'\['
@@ -165,7 +167,6 @@ t_LBRACE = r'\{'
 t_RBRACE = r'\}'
 t_SEMICOLON = r';'
 t_COMMA = r','
-t_DOT = r'\.'
 
 #binops
 t_OP1 = r'\*|/'
@@ -206,6 +207,8 @@ def t_ID(t):
     r'[a-zA-Z_][_a-zA-Z\d]*'
     t.type = reserved.get(t.value,'ID')    # Check for reserved words
     return t
+
+
 
 def t_newline(t):
     r'\n+'

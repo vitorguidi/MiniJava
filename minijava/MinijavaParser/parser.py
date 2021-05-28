@@ -15,7 +15,7 @@ class Parser:
     def _parse(self):
         return self._program()
 
-    def _consume_single_from_stream(self, expected):
+    def _consume_many_from_stream(self, expected):
         ans = []
         for expected_type in expected:
             cur_type = self.tokens.peep(0)
@@ -24,7 +24,7 @@ class Parser:
             ans.append(self.tokens.consume())
         return ans
 
-    def _consume_many_from_stream(self, expected):
+    def _consume_single_from_stream(self, expected):
         cur_type = self.tokens.peep(0)
         if cur_type != expected:
             raise SyntaxError('Expected {}, found {}'.format(expected ,cur_type))
@@ -53,13 +53,13 @@ class Parser:
 
         class_id = class_id.value
 
-        self.consume_many_from_stream([TokenTypes.LBRACE, TokenTypes.PUBLIC, TokenTypes.STATIC, TokenTypes.VOID,
-            TokenTypes.MAIN, TokenTypes.LPAREN, TokenTypes.STRING, TokenTypes.LSQPAREN, TokenTypes.RQSPAREN, TokenTypes.ID,
+        self._consume_many_from_stream([TokenTypes.LBRACE, TokenTypes.PUBLIC, TokenTypes.STATIC, TokenTypes.VOID,
+            TokenTypes.MAIN, TokenTypes.LPAREN, TokenTypes.STRING, TokenTypes.LSQPAREN, TokenTypes.RSQPAREN, TokenTypes.ID,
                 TokenTypes.RPAREN, TokenTypes.LBRACE])
 
         body = self._stmt()
 
-        main_method = MethodNode('main', ObjectTypes.VOID, [], [body])
+        main_method = MethodNode('main', 'void', [], [], [body])
 
         self._consume_many_from_stream([TokenTypes.RBRACE, TokenTypes.RBRACE]) 
 
@@ -112,8 +112,8 @@ class Parser:
         peep = self.tokens.peep(0)
         
         if peep == TokenTypes.INTEGER:
-            if self.tokens.peep(1) == TokenTypes.LSQPAREN and self.tokens.peep(2) == TokenTypes.RQSPAREN:
-                self._consume_many_from_stream(TokenTypes.INTEGER, TokenTypes.LSQPAREN, TokenTypes.RQSPAREN)
+            if self.tokens.peep(1) == TokenTypes.LSQPAREN and self.tokens.peep(2) == TokenTypes.RSQPAREN:
+                self._consume_many_from_stream(TokenTypes.INTEGER, TokenTypes.LSQPAREN, TokenTypes.RSQPAREN)
                 return 'INTEGER_ARRAY'
             else:
                 self._consume_single_from_stream(TokenTypes.INTEGER)
@@ -178,7 +178,7 @@ class Parser:
 
     def _formal_list(self):
         consumed_type = self._type()
-        if not Type:
+        if not consumed_type:
             return []
         consumed_id = self._consume_single_from_stream(TokenTypes.ID)
         formal_list = []
@@ -401,19 +401,24 @@ class Parser:
             return ans
         
         elif peep == TokenTypes.INTEGER_LITERAL:
-            return IntegerLiteralNode(peep.value)
+            value = self._consume_single_from_stream(TokenTypes.INTEGER_LITERAL).value
+            return IntegerLiteralNode(value)
 
         elif peep == TokenTypes.THIS:
+            _ = self._consume_single_from_stream(TokenTypes.THIS).value
             return ThisNode()
 
         elif peep == TokenTypes.TRUE:
+            _value = self._consume_single_from_stream(TokenTypes.TRUE).value
             return TrueNode()
 
         elif peep == TokenTypes.FALSE:
+            _ = self._consume_single_from_stream(TokenTypes.FALSE).value
             return FalseNode()
 
         elif peep == TokenTypes.ID:
-            return IdNode(peep.value)
+            value = self._consume_single_from_stream(TokenTypes.ID).value
+            return IdNode(value)
 
         elif peep == TokenTypes.NEW:
             self._consume_single_from_stream(peep)

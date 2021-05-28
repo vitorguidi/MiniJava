@@ -4,7 +4,6 @@ class Ast:
     def get_type(self):
         return self.var_type
 
-
 class NodeType(Enum):
     PROGRAM = 0
     CLASS = 1
@@ -18,27 +17,31 @@ class NodeType(Enum):
     ARRAY_ASSIGN_STATEMENT = 9
     NULL_STATEMENT = 10
     STATEMENT_BLOCK = 11
-    AND_EXPR = 12
-    OR_EXPR = 13
-    ARRAY_ACCESS_EXPR = 18
-    EQUAL_EXPR = 19
-    DIFFERENT_EXPR = 20
-    LESS_EXPR = 21
-    GREATER_EXPR = 22
-    LEQ_EXPR = 23
-    GEQ_EXPR = 24
-    DIV_EXPR = 25
-    MULT_EXPR = 26
-    PLUS_EXPR = 27
-    MINUS_EXPR = 28
-    NOT_EXPR = 29
-    INTEGER_LITERAL = 30
-    INTEGER_ARRAY = 31
-    TRUE = 32
-    FALSE = 33
-    ID = 34
-    THIS = 35
-    NULL = 36
-    ARRAY_LENGTH = 37
-    OBJECT_ACCESS = 38
-    METHOD_CALL = 39
+    
+    ARRAY_ACCESS_EXPR = 12
+
+    AND_EXPR = 13
+    OR_EXPR = 14 
+    EQUAL_EXPR = 15
+    DIFFERENT_EXPR = 16
+    LESS_EXPR = 17
+    GREATER_EXPR = 18
+    LEQ_EXPR = 19
+    GEQ_EXPR = 20
+    DIV_EXPR = 21
+    MULT_EXPR = 22
+    PLUS_EXPR = 23
+    MINUS_EXPR = 24
+    NOT_EXPR = 25
+    
+    INTEGER_LITERAL = 26
+    INTEGER_ARRAY = 27
+    TRUE = 28
+    FALSE = 29
+    ID = 30
+    THIS = 31
+    NULL = 32
+
+    ARRAY_LENGTH = 33
+    OBJECT_ACCESS = 34
+    METHOD_CALL = 35

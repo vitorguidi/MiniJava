@@ -15,62 +15,62 @@ class BinOP(Expr):
 class OrExpr(BinOP):
     def __init__(self, left_term, right_term):
         self.type = NodeType.OR_EXPR
-        super.__init__(left_term, right_term)
+        super().__init__(left_term, right_term)    
 
 class AndExpr(BinOP):
     def __init__(self, left_term, right_term):
         self.type = NodeType.AND_EXPR
-        super.__init__(left_term, right_term)
+        super().__init__(left_term, right_term)
 
 class EqualExpr(BinOP):
     def __init__(self, left_term, right_term):
         self.type = NodeType.EQUAL_EXPR
-        super.__init__(left_term, right_term)
+        super().__init__(left_term, right_term)
 
 class DifferentExpr(BinOP):
     def __init__(self, left_term, right_term):
         self.type = NodeType.DIFFERENT_EXPR
-        super.__init__(left_term, right_term)
+        super().__init__(left_term, right_term)
 
 class LessExpr(BinOP):
     def __init__(self, left_term, right_term):
         self.type = NodeType.LESS_EXPR
-        super.__init__(left_term, right_term)
+        super().__init__(left_term, right_term)
 
 class LeqExpr(BinOP):
     def __init__(self, left_term, right_term):
         self.type = NodeType.LEQ_EXPR
-        super.__init__(left_term, right_term)
+        super().__init__(left_term, right_term)
 
 class GreaterExpr(BinOP):
     def __init__(self, left_term, right_term):
         self.type = NodeType.GREATER_EXPR
-        super.__init__(left_term, right_term)
+        super().__init__(left_term, right_term)
 
 class GeqExpr(BinOP):
     def __init__(self, left_term, right_term):
         self.type = NodeType.GEQ_EXPR
-        super.__init__(left_term, right_term)
+        super().__init__(left_term, right_term)
 
 class PlusExpr(BinOP):
     def __init__(self, left_term, right_term):
         self.type = NodeType.PLUS_EXPR
-        super.__init__(left_term, right_term)
+        super().__init__(left_term, right_term)
 
 class MinusExpr(BinOP):
     def __init__(self, left_term, right_term):
         self.type = NodeType.MINUS_EXPR
-        super.__init__(left_term, right_term)
+        super().__init__(left_term, right_term)
 
 class MultExpr(BinOP):
     def __init__(self, left_term, right_term):
         self.type = NodeType.MULT_EXPR
-        super.__init__(left_term, right_term)
+        super().__init__(left_term, right_term)
 
 class DivExpr(BinOP):
     def __init__(self, left_term, right_term):
         self.type = NodeType.DIV_EXPR
-        super.__init__(left_term, right_term)
+        super().__init__(left_term, right_term)
 
 class UnsupportedArgumentException(Exception):
     def __init__(self, arg, expected_list):

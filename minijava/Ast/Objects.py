@@ -34,7 +34,7 @@ class ClassNode(Ast):
 
 class MainClassNode(ClassNode):
     def __init__(self, class_id, var_list, class_methods):
-        super.__init__(class_id, var_list, class_methods, NodeType.MAINCLASS)
+        super().__init__(class_id, var_list, class_methods, NodeType.MAINCLASS)
 
 class VariableNode(Ast):
     def __init__(self, var_type, var_id):
