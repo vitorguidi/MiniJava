@@ -5,3 +5,4 @@ arithmetic/parser_v2.py
 arithmetic/test-output/
 test-output/
 *.pdf
+*pycache*

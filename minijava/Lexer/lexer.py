@@ -1,7 +1,6 @@
 import ply.lex as lex
 from enum import Enum
 
-
 class TokenTypes(Enum):
    
     #statements and ops
@@ -15,8 +14,8 @@ class TokenTypes(Enum):
     ASSIGN = 'ASSIGN',
     OP1 = 'OP1',   # * /
     OP2 = 'OP2',   # + -
-    OP3 = 'OP3',   #   == !=
-    OP4 = 'OP4',    #> >= < <=
+    OP3 = 'OP3',   # > >= < <= 
+    OP4 = 'OP4',    # == !=
     NOT = 'NOT',
     AND = 'AND',
     OR = 'OR',
@@ -220,9 +219,3 @@ def getTokenStream(data):
     lexer = lex.lex()
     lexer.input(data)
     return tokenStream(lexer)
-
-with open("../samples/smallTest.java") as file:
-    data='\n'.join(file.readlines())
-
-
-print(getTokenStream(data))

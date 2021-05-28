@@ -1,7 +1,7 @@
-from minijava.ast.Ast import NodeType
-from . import expr
+from .Ast import NodeType
+from .Expr import Expr
 
-class BinOP(expr):
+class BinOP(Expr):
     def __init__(self, left_term, right_term):
         self.left_term = left_term
         self.right_term = right_term

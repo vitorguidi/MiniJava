@@ -1,4 +1,3 @@
-from minijava.lexer.lexer import TokenTypes
 from .Ast import *
 
 class Stmt(Ast):

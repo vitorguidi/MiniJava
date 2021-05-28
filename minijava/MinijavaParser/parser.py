@@ -1,10 +1,5 @@
-from minijava.ast.BinOp import *
-from minijava.ast.Stmt import *
-from minijava.ast.Objects import *
-from minijava.ast.Expr import *
-from minijava.ast.Terminal import *
-from ..lexer.lexer import getTokenStream, TokenTypes
-from ..ast.Objects import *
+from Ast import *
+from Lexer import getTokenStream, TokenTypes
 
 class SyntaxError(Exception):
     ''' Raised when syntax rules are breached '''
@@ -54,7 +49,7 @@ class Parser:
         if self.tokens.peep(0) != TokenTypes.CLASS:
             return None
         
-        [_, class_id] = self.consume_many_from_stream([TokenTypes.CLASS, TokenTypes.ID])
+        [_, class_id] = self._consume_many_from_stream([TokenTypes.CLASS, TokenTypes.ID])
 
         class_id = class_id.value
 
@@ -457,8 +452,3 @@ class Parser:
             expr_list.append(inner_expr)
         
         return expr_list
-
-with open("../samples/smallTest.java") as file:
-    data='\n'.join(file.readlines())
-
-parser = Parser(data)

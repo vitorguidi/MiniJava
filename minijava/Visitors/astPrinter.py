@@ -1,4 +1,4 @@
-from ..ast import *
+from .ast import *
 
 class AstPrinter:
     def __init__(self, ast):
