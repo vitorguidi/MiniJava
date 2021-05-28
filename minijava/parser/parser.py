@@ -11,7 +11,7 @@ class SyntaxError(Exception):
     def __init__(self, message):
         self.message = message
 
-class parser:
+class Parser:
 
     def __init__(self, data):
         self.tokens = getTokenStream(data)
@@ -437,5 +437,28 @@ class parser:
                 raise SyntaxError("Expected {} or {}, found {}.".format(TokenTypes.INTEGER, TokenTypes.ID, peep))
 
         else:
-            expected_primary_types = [TokenTypes.INTEGER_LITERAL, TokenTypes.LPAREN, TokenTypes.THIS, TokenTypes.TRUE, TokenTypes.FALSE, TokenTypes.ID, TokenTypes.NEW]
-            raise SyntaxError("Expected something from {}, found {}.", expected_primary_types, peep)
+            return None
+
+
+    def _expr_list(self):
+        expr_list = []
+        first_expr = self._expr()
+        
+        if not first_expr:
+            return expr_list
+        
+        expr_list.append(first_expr)
+        
+        while self.tokens.peep(0) == TokenTypes.COMMA:
+            self._consume_single_from_stream(TokenTypes.COMMA)
+            inner_expr = self._expr
+            if not inner_expr:
+                raise SyntaxError('Expected an expr after comma in ExprList, got nothing.')
+            expr_list.append(inner_expr)
+        
+        return expr_list
+
+with open("../samples/smallTest.java") as file:
+    data='\n'.join(file.readlines())
+
+parser = Parser(data)

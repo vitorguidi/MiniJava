@@ -1,5 +1,4 @@
 from .Ast import Ast, NodeType
-from enum import Enum
 
 class ProgramNode(Ast):
     def __init__(self, main_class, other_classes):
@@ -29,7 +28,9 @@ class ClassNode(Ast):
 
     def get_methods(self):
         return self.methods
-    
+
+    def get_parent_class(self):
+        return self.parent_class
 
 class MainClassNode(ClassNode):
     def __init__(self, class_id, var_list, class_methods):
@@ -70,16 +71,3 @@ class MethodNode(Ast):
 
     def get_stmt_list(self):
         return self.stmt_list
-
-
-class ObjectTypes(Enum):
-    VOID = 0
-    INTEGER_LITERAL = 1
-    INTEGER_ARRAY = 2
-    STRING = 3
-    BOOLEAN = 4
-    ID = 5
-
-
-
-    

@@ -1,4 +1,3 @@
-from re import L
 from minijava.ast.Ast import NodeType
 from . import expr
 
