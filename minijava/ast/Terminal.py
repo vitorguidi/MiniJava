@@ -1,22 +1,38 @@
 from .Ast import *
 
 class Terminal(Ast):
-    pass
+    def __init__(self, value):
+        pass
+    
+    def get_value(self):
+        return self.value
 
-class Integer(Terminal):
-    pass
+class IntegerLiteralNode(Terminal):
+    def __init__(self, value):
+        super.__init__(value)
+        self.type = NodeType.INTEGER_LITERAL
 
-class IntegerArray(Terminal):
-    pass
+class TrueNode(Terminal):
+    def __init__(self):
+        super.__init__(True)
+        self.type = NodeType.TRUE
 
-class String(Terminal):
-    pass
+class FalseNode(Terminal):
+    def __init__(self):
+        super.__init__(False)
+        self.type = NodeType.FALSE
 
-class Boolean(Terminal):
-    pass
+class IdNode(Terminal):
+    def __init__(self, value):
+        super.__init__(True)
+        self.type = NodeType.ID
 
-class Id(Terminal):
-    pass
+class ThisNode(Terminal):
+    def __init__(self):
+        super.__init__('this')
+        self.type = NodeType.THIS
 
 class NullNode(Terminal):
-    pass
+    def __init__(self):
+        super.__init__(None)
+        self.type = NodeType.NULL

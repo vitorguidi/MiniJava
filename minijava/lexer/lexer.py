@@ -15,7 +15,8 @@ class TokenTypes(Enum):
     ASSIGN = 'ASSIGN',
     OP1 = 'OP1',   # * /
     OP2 = 'OP2',   # + -
-    OP3 = 'OP3',   # > >= < <= == !=
+    OP3 = 'OP3',   #   == !=
+    OP4 = 'OP4',    #> >= < <=
     NOT = 'NOT',
     AND = 'AND',
     OR = 'OR',
@@ -104,7 +105,8 @@ tokens = (
     #all left associative
     'OP1',   # * /
     'OP2',   # + -
-    'OP3',   # > >= < <= == !=
+    'OP3',   # > >= < <= 
+    'OP4',   # == !=
     'NOT',
     'AND',
     'OR',
@@ -169,7 +171,8 @@ t_DOT = r'\.'
 #binops
 t_OP1 = r'\*|/'
 t_OP2 = r'\+|-'
-t_OP3 = r'<=|<|>=|>|==|!='
+t_OP3 = r'<=|<|>=|>'
+t_OP4 = r'==|!='
 t_NOT = r'!'
 t_AND = r'&&'
 t_OR = r'\|\|'

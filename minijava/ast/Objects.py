@@ -14,11 +14,12 @@ class ProgramNode(Ast):
         return self.other_classes
 
 class ClassNode(Ast):
-    def __init__(self, class_id, var_list, methods, class_type = NodeType.CLASS):
+    def __init__(self, class_id, var_list, methods, class_type = NodeType.CLASS, parent_class = None):
         self.type = class_type
         self.class_id = class_id
         self.var_list = var_list
         self.methods = methods
+        self.parent_class = parent_class
 
     def get_class_id(self):
         return self.class_id

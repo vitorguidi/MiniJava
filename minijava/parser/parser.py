@@ -1,6 +1,8 @@
-from minijava.ast.Stmt import ArrayAssigntStmt, AssignStmt, IfStmt, PrintStmt, StmtBlock, WhileStmt, ifStmt
-from minijava.ast.Objects import MainClassNode, MethodNode, ProgramNode
-from ply import lex
+from minijava.ast.BinOp import *
+from minijava.ast.Stmt import *
+from minijava.ast.Objects import *
+from minijava.ast.Expr import *
+from minijava.ast.Terminal import *
 from ..lexer.lexer import getTokenStream, TokenTypes
 from ..ast.Objects import *
 
@@ -75,6 +77,12 @@ class parser:
     
         [_, class_id] = self._consume_many_from_stream([TokenTypes.CLASS, TokenTypes.ID])
 
+        parent_class = None
+
+        if self.tokens.peep(0) == TokenTypes.EXTENDS:
+            [_, parent_class_id] = self._consume_many_from_stream(TokenTypes.EXTENDS, TokenTypes.ID)
+            parent_class = parent_class_id.value
+
         diff_token = self.tokens.peep(0)
 
         var_list = []
@@ -100,13 +108,10 @@ class parser:
                 else:
                     break
 
-        #elif diff_token == TokenTypes.EXTENDS:
-        #to be implemented
-
         else:
             raise SyntaxError('Expected {} , found {}', TokenTypes.LBRACE, diff_token)
 
-        return ClassNode(class_id, var_list, methods_list)
+        return ClassNode(class_id, var_list, methods_list, parent_class = parent_class)
 
     def _type(self):
         peep = self.tokens.peep(0)
@@ -197,8 +202,6 @@ class parser:
             formal_rest.append(VariableNode(consumed_type, consumed_id.value))
         return formal_rest
 
-        
-
     def _stmt(self):
         peep = self.tokens.peep(0)
         if peep not in [TokenTypes.LBRACE, TokenTypes.IF, TokenTypes.WHILE, TokenTypes.PRINTLN, TokenTypes.ID]:
@@ -257,12 +260,182 @@ class parser:
                 return ArrayAssigntStmt(id.value, pos_expr, value_expr)
 
             else:
-                raise SyntaxError('Expected {} or {}, found {}', TokenTypes.ASSIGN, TokenTypes.RQSPAREN, next_peep)
+                raise SyntaxError('Expected {} or {}, found {}', TokenTypes.ASSIGN, TokenTypes.RSQPAREN, next_peep)
+
+    # Exp               -> OrExpr
+    # OrExpr            -> AndExpr  ( || AndExpr)*
+    # AndExpr           -> EqualityExpr ( && EqualityExpr )*
+    # EqualityExpr      -> CompExpr ( OP4 CompExpr)
+    # CompExpr          -> AdditiveExpr [ OP3 AdditiveExpr ]
+    # AdditiveExpr      -> TimesExpr ( OP2 TimesExpr )*
+    # TimesExpr         -> PrefixExpr ( OP1 PrefixExpr )*
+    # PrefixExp         -> Not | PostfixExp
+    # Not               -> ( ! )+ PostfixExp
+    # PostfixExp        -> PrimaryExp Suffix
+    # Suffix            -> ( "[" Exp "]" 
+    #                      | . id ["(" ExpList ")"]  
+    #                      | . length )*
+    # PrimaryExp        -> INTEGER_LITERAL
+    #                   -> true
+    #                   -> false
+    #                   -> id
+    #                   -> this
+    #                   -> "(" Exp ")"
+    #                   -> new int "[" Exp "]"
+    #                   -> new id "(" ")"
 
     def _expr(self):
+        return self._or_expr()
+
+    def _or_expr(self):
+        left_term = self._and_expr()
+        if self.tokens.peep(0) == TokenTypes.OR:
+            self._consume_single_from_stream(TokenTypes.OR)
+            right_term = self._or_expr()
+            return OrExpr(left_term, right_term)
+        return left_term
+
+    def _and_expr(self):
+        left_term = self._equality_expr()
+        if self.tokens.peep(0) == TokenTypes.AND:
+            self._consume_single_from_stream(TokenTypes.AND)
+            right_term = self._and_expr()
+            return AndExpr(left_term, right_term)
+        return left_term
+
+    def _equality_expr(self):               #not gonna support chained comparisons for eq;ineq
+        left_term = self._comp_expr()
+        potential_expr_sign = self.tokens.peep(0)
+        if potential_expr_sign == TokenTypes.OP4:
+            op = self._consume_single_from_stream(TokenTypes.OP4)
+            right_term = self._comp_expr()
+            return EqualityExprFactory(left_term, op, right_term)
+        return left_term
+
+    def _comp_expr(self):
+        left_term = self._additive_expr()           #not gonna support chained comparisons for < > <= >=
+        potential_expr_sign = self.tokens.peep(0)
+        if potential_expr_sign == TokenTypes.OP3:
+            op = self._consume_single_from_stream(TokenTypes.OP3)
+            right_term = self._additive_expr()
+            return CompExprFactory(left_term, op, right_term)
+        return left_term
+
+    def _additive_expr(self):
+        left_term = self._times_expr()
+        potential_expr_sign = self.tokens.peep(0)
+        if potential_expr_sign == TokenTypes.OP2:
+            op = self._consume_single_from_stream(TokenTypes.OP2)
+            right_term = self._additive_expr()
+            return AdditiveExprFactory(left_term, op, right_term)
+        return left_term
+
+    def _times_expr(self):
+        left_term = self._prefix_expr()
+        potential_expr_sign = self.tokens.peep(0)
+        if potential_expr_sign == TokenTypes.OP1:
+            op = self._consume_single_from_stream(TokenTypes.OP1)
+            right_term = self._times_expr()
+            return TimesExprFactory(left_term, op, right_term)
+        return left_term
+
+    def _prefix_expr(self):
+        peep = self.tokens.peep(0)
+        if peep ==  TokenTypes.NOT:
+            self._consume_single_from_stream(TokenTypes.NOT)
+            arg = self._postfix_expr()
+            return NotExpr(arg)
+        return self._postfix_expr()
+
+    def _postfix_expr(self):
+        primary_expr = self._primary_expr()
+        return self._suffix(primary_expr)
+
+    def _suffix(self, left_expr):
+        peep = self.tokens.peep(0)
+
+        #array access
+        if peep == TokenTypes.LSQPAREN:
+            self._consume_single_from_stream(TokenTypes.LSQPAREN)
+            inner_expr = self._expr()
+            self._consume_single_from_stream(TokenTypes.RSQPAREN)
+            cur_production = ArrayAccessExpr(left_expr, inner_expr)
+            return self._suffix(cur_production)
+
+        #method access, object variable access or length
+        elif peep == TokenTypes.DOT:
+            self._consume_single_from_stream(TokenTypes.DOT)
+            peep = self.tokens.peep(0)
+
+            if peep == TokenTypes.ID:
+                id = self._consume_single_from_stream(TokenTypes.ID).value
+                peep = self.tokens.peep(0)
+
+                #method access
+                if peep == TokenTypes.LPAREN:
+                    self._consume_single_from_stream(TokenTypes.LPAREN)
+                    expr_list = self._expr_list()
+                    self._consume_single_from_stream(TokenTypes.RPAREN)
+                    cur_production = MethodCallExpr(left_expr, id, expr_list)
+                    return self._suffix(cur_production)
+
+                #object access
+                else:
+                    cur_production = ObjectAccessExpr(left_expr, id)
+                    return self._suffix(cur_production)
+
+            #length op
+            elif peep == TokenTypes.LENGTH:
+                self._consume_single_from_stream(TokenTypes.LENGTH)
+                cur_production = ArrayLengthExpr(left_expr)
+                return self._suffix(cur_production)
 
 
+        #no suffix
+        else:
+            return left_expr
 
+    def _primary_expr(self):
+        
+        peep = self.tokens.peep(0)
 
+        if peep == TokenTypes.LPAREN:
+            self._consume_single_from_stream(TokenTypes.LPAREN)
+            ans = self._expr()
+            self._consume_single_from_stream(TokenTypes.RPAREN)
+            return ans
+        
+        elif peep == TokenTypes.INTEGER_LITERAL:
+            return IntegerLiteralNode(peep.value)
 
+        elif peep == TokenTypes.THIS:
+            return ThisNode()
 
+        elif peep == TokenTypes.TRUE:
+            return TrueNode()
+
+        elif peep == TokenTypes.FALSE:
+            return FalseNode()
+
+        elif peep == TokenTypes.ID:
+            return IdNode(peep.value)
+
+        elif peep == TokenTypes.NEW:
+            self._consume_single_from_stream(peep)
+            peep = self.tokens.peep(0)
+          
+            if peep == TokenTypes.INTEGER:
+                self._consume_many_from_stream([TokenTypes.INTEGER, TokenTypes.LSQPAREN])
+                size_expr = self._expr()
+                self._consume_single_from_stream(TokenTypes.RSQPAREN)
+                return NewIntArrayExpr(size_expr)
+
+            elif peep == TokenTypes.ID:
+                [id, _, _] = self._consume_many_from_stream([TokenTypes.ID, TokenTypes.LPAREN, TokenTypes.RPAREN])
+                return NewObjectExpr(id.value)
+            else:
+                raise SyntaxError("Expected {} or {}, found {}.".format(TokenTypes.INTEGER, TokenTypes.ID, peep))
+
+        else:
+            expected_primary_types = [TokenTypes.INTEGER_LITERAL, TokenTypes.LPAREN, TokenTypes.THIS, TokenTypes.TRUE, TokenTypes.FALSE, TokenTypes.ID, TokenTypes.NEW]
+            raise SyntaxError("Expected something from {}, found {}.", expected_primary_types, peep)
