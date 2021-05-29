@@ -17,13 +17,16 @@ class UnOp(Expr):
     def _get_children(self):
         return [ (self.arg, 'unary operand') ]
 
-def NotExpr(UnOp):
+class NotExpr(UnOp):
     def __init__(self, arg):
         self.arg = arg
         self.type = NodeType.NOT_EXPR
 
     def __str__(self):
         return '!'
+
+    def get_children(self):
+        return [(self.arg, 'negated argument')]
 
 class ArrayAccessExpr(Expr):
     def __init__(self, id, pos_expr):

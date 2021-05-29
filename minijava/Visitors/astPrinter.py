@@ -21,6 +21,7 @@ class AstPrinter:
 
         print(node)
         print(node.get_children())
+        print('###')
 
         for (child, edge_label) in node.get_children():
             child = self.dfs(child)

@@ -256,7 +256,7 @@ class Parser:
                 [id, _] = self._consume_many_from_stream([TokenTypes.ID, TokenTypes.ASSIGN])
                 expr = self._expr()
                 self._consume_single_from_stream(TokenTypes.SEMICOLON)
-                return AssignStmt(id.value, expr)
+                return AssignStmt( IdNode(id.value), expr)
                 
             elif next_peep == TokenTypes.RSQPAREN:
                 [id, _] = self._consume_many_from_stream([TokenTypes.ID, TokenTypes.RSQPAREN])
@@ -351,6 +351,7 @@ class Parser:
         if peep ==  TokenTypes.NOT:
             self._consume_single_from_stream(TokenTypes.NOT)
             arg = self._postfix_expr()
+            print('not arg = ', arg)
             return NotExpr(arg)
         return self._postfix_expr()
 
