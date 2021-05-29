@@ -6,6 +6,10 @@ class SmallProgram {
 
     }
 
+    public int aux(int a, boolean b) {
+        return a < b;
+    }
+
 }
 
 class Coiso {

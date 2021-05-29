@@ -55,10 +55,10 @@ class AssignStmt(Stmt):
         self.type = NodeType.ASSIGN_STATEMENT
 
     def __str__(self):
-        return 'assign'
+        return 'assign to var {}'.format(self.id)
 
     def get_children(self):
-        return [ (self.id, 'target id'), (self.expr, 'expression') ]
+        return [ (self.expr, 'expression') ]
 
 class ArrayAssigntStmt(Stmt):
     def __init__(self, id, pos_expr, value_expr):
@@ -68,10 +68,10 @@ class ArrayAssigntStmt(Stmt):
         self.type = NodeType.ARRAY_ASSIGN_STATEMENT
 
     def __str__(self):
-        return 'array assign'
+        return 'assign to array {}'.format(self.id)
 
     def get_children(self):
-        return [ (self.id, 'target id'), (self.pos_expr, 'position expression'), (self.expr, 'value expression') ]
+        return [ (self.pos_expr, 'position expression'), (self.value_expr, 'value expression') ]
 
 class PrintStmt(Stmt):
     def __init__(self, print_expr):

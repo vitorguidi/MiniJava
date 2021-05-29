@@ -77,6 +77,7 @@ class Parser:
             return None
     
         [_, class_id] = self._consume_many_from_stream([TokenTypes.CLASS, TokenTypes.ID])
+        class_id = class_id.value
 
         parent_class = None
 
@@ -84,21 +85,22 @@ class Parser:
             [_, parent_class_id] = self._consume_many_from_stream(TokenTypes.EXTENDS, TokenTypes.ID)
             parent_class = parent_class_id.value
 
-        var_list = []
-        methods_list = []
 
         self._consume_single_from_stream(TokenTypes.LBRACE)
         # get var decls
         #should return None if nothing to match
-        while True:
-            consumed_var = self._var_decl()
-            if consumed_var:
-                var_list.append(consumed_var)
-            else:
-                break
+        var_list = self._var_decl()
+
+        # while True:
+        #     consumed_var = self._var_decl()
+        #     if consumed_var:
+        #         var_list.append(consumed_var)
+        #     else:
+        #         break
         
         #get methods
         #should return None if nothing to match
+        methods_list = []
         while True:
             consumed_method = self._method_decl()
             if consumed_method:
@@ -110,6 +112,7 @@ class Parser:
 
     def _type(self):
         peep = self.tokens.peep(0)
+        peep_ahead = self.tokens.peep(1)
         
         if peep == TokenTypes.INTEGER:
             if self.tokens.peep(1) == TokenTypes.LSQPAREN and self.tokens.peep(2) == TokenTypes.RSQPAREN:
@@ -123,7 +126,7 @@ class Parser:
             self._consume_single_from_stream(TokenTypes.BOOLEAN)
             return 'BOOLEAN'
 
-        elif peep == TokenTypes.ID:
+        elif peep == TokenTypes.ID  and peep_ahead != TokenTypes.ASSIGN: #avid conflict with assign stmt
             return self._consume_single_from_stream(TokenTypes.ID).value
             
         else:
@@ -159,14 +162,14 @@ class Parser:
 
         self._consume_many_from_stream([TokenTypes.RPAREN, TokenTypes.LBRACE])
 
-        var_decl = []
+        var_decl = self._var_decl()
 
-        while True:
-            consumed_var = self._var_decl()
+        # while True:
+        #     consumed_var = self._var_decl()
 
-            if not consumed_var:
-                break
-            var_decl.append(consumed_var)
+        #     if not consumed_var:
+        #         break
+        #     var_decl.append(consumed_var)
 
         statement_list = []
 
@@ -258,8 +261,8 @@ class Parser:
                 self._consume_single_from_stream(TokenTypes.SEMICOLON)
                 return AssignStmt( IdNode(id.value), expr)
                 
-            elif next_peep == TokenTypes.RSQPAREN:
-                [id, _] = self._consume_many_from_stream([TokenTypes.ID, TokenTypes.RSQPAREN])
+            elif next_peep == TokenTypes.LSQPAREN:
+                [id, _] = self._consume_many_from_stream([TokenTypes.ID, TokenTypes.LSQPAREN])
                 pos_expr = self._expr()
                 self._consume_many_from_stream([TokenTypes.RSQPAREN, TokenTypes.ASSIGN])
                 value_expr = self._expr()
@@ -351,7 +354,6 @@ class Parser:
         if peep ==  TokenTypes.NOT:
             self._consume_single_from_stream(TokenTypes.NOT)
             arg = self._postfix_expr()
-            print('not arg = ', arg)
             return NotExpr(arg)
         return self._postfix_expr()
 
@@ -368,6 +370,7 @@ class Parser:
             inner_expr = self._expr()
             self._consume_single_from_stream(TokenTypes.RSQPAREN)
             cur_production = ArrayAccessExpr(left_expr, inner_expr)
+
             return self._suffix(cur_production)
 
         #method access, object variable access or length
@@ -464,7 +467,7 @@ class Parser:
         
         while self.tokens.peep(0) == TokenTypes.COMMA:
             self._consume_single_from_stream(TokenTypes.COMMA)
-            inner_expr = self._expr
+            inner_expr = self._expr()
             if not inner_expr:
                 raise SyntaxError('Expected an expr after comma in ExprList, got nothing.')
             expr_list.append(inner_expr)

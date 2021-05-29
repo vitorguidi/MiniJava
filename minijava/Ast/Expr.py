@@ -53,13 +53,13 @@ class MethodCallExpr(Expr):
         self.expr_list = expr_list
 
     def __str__(self):
-        return 'method call'
+        return 'method call from obj {} with method {}'.format(self.object_id, self.method_id)
 
     def get_children(self):
-        edges = [ (self.object_id, 'object id'), (self.method_id, 'method id') ]
+        edges = [ ]
         cnt = 0
         for item in self.expr_list:
-            edges.push_back( (item, 'argument {}'.format(cnt)) )
+            edges.append( (item, 'argument {}'.format(cnt)) )
             cnt += 1
         return edges
         
@@ -102,7 +102,7 @@ class NewObjectExpr(Expr):
         self.id = id
 
     def __str__(self):
-        return 'new object'
+        return 'new object - {}'.format(self.id)
 
     def get_children(self):
-        return [(self.id, 'object id')]
+        return []

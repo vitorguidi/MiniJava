@@ -76,6 +76,9 @@ class VariableNode(Ast):
     def __str__(self):
         return 'Variable - id = {}, type = {}'.format(self.var_id, self.var_type)
 
+    def get_children(self):
+        return []
+
 class MethodNode(Ast):
     def __init__(self, method_id, return_type, args_list, var_list, stmt_list):
         self.method_id = method_id
@@ -114,4 +117,5 @@ class MethodNode(Ast):
         cnt = 0
         for stmt in self.stmt_list:
             edges.append( (stmt, 'inner_statement '.format(cnt)) )
+        print('method edges = ', edges)
         return edges

@@ -12,19 +12,20 @@ class AstPrinter:
         self.dfs(self.ast)
         self.dot.render('test-output/ast_dump.gv', view=True) 
 
-    def dfs(self, node):
+    def dfs(self, node, dad=None):
         self.cnt += 1
       
         this_id = str(self.cnt)
 
         self.dot.node(name=this_id, label=str(node))
 
-        print(node)
-        print(node.get_children())
+        print('dad = ', dad)
+        print('node = ', node)
+        print('children = ', node.get_children())
         print('###')
 
         for (child, edge_label) in node.get_children():
-            child = self.dfs(child)
+            child = self.dfs(child, node)
             self.dot.edge(this_id, child, label = edge_label)
 
         return this_id
