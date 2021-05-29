@@ -88,7 +88,7 @@ class tokenStream:
         try:
             ans = self.tokens[self.pos]
             self.pos += 1
-            print(self.tokens[self.pos-1])
+            #print(self.tokens[self.pos-1])
         except IndexError:
             return None
         return ans

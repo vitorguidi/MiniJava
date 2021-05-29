@@ -3,7 +3,7 @@ from .Ast import *
 class Stmt(Ast):
     pass
 
-def StmtBlock(Stmt):
+class StmtBlock(Stmt):
     def __init__(self, stmt_list):
         self.type = NodeType.STATEMENT_BLOCK
         self.stmt_list = stmt_list
@@ -18,6 +18,9 @@ def StmtBlock(Stmt):
             edges.append( (stmt, 'statement '.format(cnt)) )
             cnt += 1
         return edges
+
+    def get_stmt_list(self):
+        return self.stmt_list
 
 class IfStmt(Stmt):
     def __init__(self, main_stmt, cond_expr, alt_stmt):

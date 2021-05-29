@@ -1,5 +1,8 @@
 from Ast import *
 from Lexer import getTokenStream, TokenTypes
+import pdb
+
+cnt = 0
 
 class SyntaxError(Exception):
     ''' Raised when syntax rules are breached '''
@@ -81,33 +84,27 @@ class Parser:
             [_, parent_class_id] = self._consume_many_from_stream(TokenTypes.EXTENDS, TokenTypes.ID)
             parent_class = parent_class_id.value
 
-        diff_token = self.tokens.peep(0)
-
         var_list = []
         methods_list = []
 
-        if diff_token == TokenTypes.LBRACE:
-            self._consume_single_from_stream(TokenTypes.LBRACE)
-            # get var decls
-            #should return None if nothing to match
-            while True:
-                consumed_var = self._var_decl()
-                if consumed_var:
-                    var_list.append(consumed_var)
-                else:
-                    break
-            
-            #get methods
-            #should return None if nothing to match
-            while True:
-                consumed_method = self._method_decl()
-                if consumed_method:
-                    methods_list.append(self._method_decl())
-                else:
-                    break
-
-        else:
-            raise SyntaxError('Expected {} , found {}', TokenTypes.LBRACE, diff_token)
+        self._consume_single_from_stream(TokenTypes.LBRACE)
+        # get var decls
+        #should return None if nothing to match
+        while True:
+            consumed_var = self._var_decl()
+            if consumed_var:
+                var_list.append(consumed_var)
+            else:
+                break
+        
+        #get methods
+        #should return None if nothing to match
+        while True:
+            consumed_method = self._method_decl()
+            if consumed_method:
+                methods_list.append(consumed_method)
+            else:
+                break
 
         return ClassNode(class_id, var_list, methods_list, parent_class = parent_class)
 
@@ -146,6 +143,7 @@ class Parser:
 
     def _method_decl(self):
         peep = self.tokens.peep(0)
+
         if peep != TokenTypes.PUBLIC:
             return None
         
@@ -161,7 +159,14 @@ class Parser:
 
         self._consume_many_from_stream([TokenTypes.RPAREN, TokenTypes.LBRACE])
 
-        var_decl = self._var_decl()
+        var_decl = []
+
+        while True:
+            consumed_var = self._var_decl()
+
+            if not consumed_var:
+                break
+            var_decl.append(consumed_var)
 
         statement_list = []
 
@@ -175,7 +180,7 @@ class Parser:
 
         return_expr = self._expr()
         self._consume_many_from_stream([TokenTypes.SEMICOLON, TokenTypes.RBRACE])
-
+        
         return MethodNode(method_id.value, consumed_type, formal_list, var_decl, statement_list)
 
 
@@ -201,6 +206,7 @@ class Parser:
         return formal_rest
 
     def _stmt(self):
+  
         peep = self.tokens.peep(0)
         if peep not in [TokenTypes.LBRACE, TokenTypes.IF, TokenTypes.WHILE, TokenTypes.PRINTLN, TokenTypes.ID]:
             return None
@@ -220,11 +226,14 @@ class Parser:
             self._consume_many_from_stream([TokenTypes.IF, TokenTypes.LPAREN])
             cond_expr = self._expr()
             self._consume_single_from_stream(TokenTypes.RPAREN)
+                        
             main_stmt = self._stmt()
+            
             alt_stmt = NullNode()
             if self.tokens.peep(0) == TokenTypes.ELSE:
                 self._consume_single_from_stream(TokenTypes.ELSE)
                 alt_stmt = self._stmt()
+
             return IfStmt(main_stmt, cond_expr, alt_stmt)
         
         elif peep == TokenTypes.WHILE:

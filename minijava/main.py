@@ -1,6 +1,10 @@
 from MinijavaParser import Parser
+from Visitors import AstPrinter
 
-with open("./samples/trash.java") as file:
+with open("./samples/smallTest.java") as file:
     data='\n'.join(file.readlines())
 
-parser = Parser(data)
+ast = Parser(data).get_ast()
+
+printer = AstPrinter(ast)
+printer.print()

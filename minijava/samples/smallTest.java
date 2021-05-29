@@ -10,17 +10,17 @@ class SmallProgram {
 
 class Coiso {
 
-    String a;
-    String b;
-    String _barata;
-
     public int Start() {
-        System.out.println("batata");
+        System.out.println(a);
         if(_barata == 2 || banana!=3 && abacaxi > 4 || !caneta && 2 <=4 || 5 >= 2 && 3<2 && 4>5  ) {
-            barata+=5; 
+            barata=5; 
         }
         else {
-            banana -= 5;
+            banana = 5;
+        }
+
+        while(2<3) {
+            System.out.println(2);
         }
 
         return batata*barata-banana+macacaco/5  ;
