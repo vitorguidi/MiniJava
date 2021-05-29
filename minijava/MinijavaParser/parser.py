@@ -12,6 +12,9 @@ class Parser:
         self.tokens = getTokenStream(data)
         self.AST = self._parse()
 
+    def get_ast(self):
+        return self.AST
+
     def _parse(self):
         return self._program()
 
@@ -113,7 +116,7 @@ class Parser:
         
         if peep == TokenTypes.INTEGER:
             if self.tokens.peep(1) == TokenTypes.LSQPAREN and self.tokens.peep(2) == TokenTypes.RSQPAREN:
-                self._consume_many_from_stream(TokenTypes.INTEGER, TokenTypes.LSQPAREN, TokenTypes.RSQPAREN)
+                self._consume_many_from_stream([TokenTypes.INTEGER, TokenTypes.LSQPAREN, TokenTypes.RSQPAREN])
                 return 'INTEGER_ARRAY'
             else:
                 self._consume_single_from_stream(TokenTypes.INTEGER)
@@ -218,7 +221,7 @@ class Parser:
             cond_expr = self._expr()
             self._consume_single_from_stream(TokenTypes.RPAREN)
             main_stmt = self._stmt()
-            alt_stmt = None
+            alt_stmt = NullNode()
             if self.tokens.peep(0) == TokenTypes.ELSE:
                 self._consume_single_from_stream(TokenTypes.ELSE)
                 alt_stmt = self._stmt()

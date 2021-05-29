@@ -1,4 +1,5 @@
 from .Ast import Ast, NodeType
+from .Terminal import NullNode
 
 class ProgramNode(Ast):
     def __init__(self, main_class, other_classes):
@@ -12,8 +13,17 @@ class ProgramNode(Ast):
     def get_other_classes(self):
         return self.other_classes
 
+    def __str__(self):
+        return 'program'
+
+    def get_children(self):
+        edges = [(self.main_class, 'main class')]
+        for other_class in self.other_classes:
+            edges.append( (other_class, 'class') )
+        return edges
+
 class ClassNode(Ast):
-    def __init__(self, class_id, var_list, methods, class_type = NodeType.CLASS, parent_class = None):
+    def __init__(self, class_id, var_list, methods, class_type = NodeType.CLASS, parent_class = NullNode()):
         self.type = class_type
         self.class_id = class_id
         self.var_list = var_list
@@ -32,9 +42,24 @@ class ClassNode(Ast):
     def get_parent_class(self):
         return self.parent_class
 
+    def __str__(self):
+        return 'class : id = {}, parent = {}'.format(self.get_class_id(), self.get_parent_class())
+
+    def get_children(self):
+        edges = [ ]
+        for method in self.methods:
+            edges.append( (method, 'method') )
+        for var in self.var_list:
+            edges.append( (var, 'inner variable') )
+        return edges
+
+
 class MainClassNode(ClassNode):
     def __init__(self, class_id, var_list, class_methods):
         super().__init__(class_id, var_list, class_methods, NodeType.MAINCLASS)
+
+    def __str__(self):
+        return 'main class'
 
 class VariableNode(Ast):
     def __init__(self, var_type, var_id):
@@ -47,6 +72,9 @@ class VariableNode(Ast):
 
     def get_var_type(self):
         return self.var_type
+
+    def __str__(self):
+        return 'Variable - id = {}, type = {}'.format(self.var_id, self.var_type)
 
 class MethodNode(Ast):
     def __init__(self, method_id, return_type, args_list, var_list, stmt_list):
@@ -71,3 +99,19 @@ class MethodNode(Ast):
 
     def get_stmt_list(self):
         return self.stmt_list
+
+    def __str__(self):
+        return 'method - return type = {}, id = {}'.format(self.return_type, self.method_id)
+
+    def get_children(self):
+        edges = []
+        cnt = 0
+        for arg in self.args_list:
+            edges.append( (arg, 'argument {}'.format(cnt)) )
+            cnt += 1
+        for var in self.var_list:
+            edges.append( (var, 'inner variable') )
+        cnt = 0
+        for stmt in self.stmt_list:
+            edges.append( (stmt, 'inner_statement '.format(cnt)) )
+        return edges

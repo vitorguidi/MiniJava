@@ -4,6 +4,9 @@ class Ast:
     def get_type(self):
         return self.var_type
 
+    def get_children(self):
+        pass
+
 class NodeType(Enum):
     PROGRAM = 0
     CLASS = 1

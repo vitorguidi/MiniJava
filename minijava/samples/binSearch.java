@@ -1,6 +1,5 @@
 class BinarySearch {
     public static void main (String[] a){
-        System.out.println("This is a binary search program!");
     	System.out.println(new BS().Start(20));
     }
 }
