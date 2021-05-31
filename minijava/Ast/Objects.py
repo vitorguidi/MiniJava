@@ -80,12 +80,13 @@ class VariableNode(Ast):
         return []
 
 class MethodNode(Ast):
-    def __init__(self, method_id, return_type, args_list, var_list, stmt_list):
+    def __init__(self, method_id, return_type, args_list, var_list, stmt_list, return_expr):
         self.method_id = method_id
         self.return_type = return_type
         self.args_list = args_list
         self.var_list = var_list
         self.stmt_list = stmt_list
+        self.return_expr = return_expr
         self.type = NodeType.METHOD
 
     def get_method_id(self):
@@ -103,6 +104,9 @@ class MethodNode(Ast):
     def get_stmt_list(self):
         return self.stmt_list
 
+    def get_return_expr(self):
+        return self.return_expr
+
     def __str__(self):
         return 'method - return type = {}, id = {}'.format(self.return_type, self.method_id)
 
@@ -117,5 +121,6 @@ class MethodNode(Ast):
         cnt = 0
         for stmt in self.stmt_list:
             edges.append( (stmt, 'inner_statement '.format(cnt)) )
+        edges.append( (self.get_return_expr(), 'return expr') )
         print('method edges = ', edges)
         return edges

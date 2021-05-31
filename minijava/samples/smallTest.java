@@ -3,11 +3,12 @@ class SmallProgram {
     public static void main(String[] a) {
 
         System.out.println(a);
+        System.out.println(a);
+        System.out.println(a);
+        System.out.println(a);
+        System.out.println(a);
 
-    }
 
-    public int aux(int a, boolean b) {
-        return a < b;
     }
 
 }

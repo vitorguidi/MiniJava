@@ -61,19 +61,23 @@ class Parser:
 
         self._consume_many_from_stream([TokenTypes.LBRACE, TokenTypes.PUBLIC, TokenTypes.STATIC, TokenTypes.VOID,
             TokenTypes.MAIN, TokenTypes.LPAREN, TokenTypes.STRING, TokenTypes.LSQPAREN, TokenTypes.RSQPAREN, TokenTypes.ID,
-                TokenTypes.RPAREN, TokenTypes.LBRACE])
+                TokenTypes.RPAREN]) 
 
         body = self._stmt()
 
-        main_method = MethodNode('main', 'void', [], [], [body])
+        main_method = MethodNode('main', 'void', [], [], [body], NullNode())
 
-        self._consume_many_from_stream([TokenTypes.RBRACE, TokenTypes.RBRACE]) 
+        self._consume_many_from_stream([TokenTypes.RBRACE]) 
 
         return MainClassNode(class_id, [], [main_method])
 
     def _class_decl(self):
 
-        if self.tokens.peep(0) != TokenTypes.CLASS:
+        peep = self.tokens.peep(0)
+
+        print('peepando = ', peep)
+
+        if peep != TokenTypes.CLASS:
             return None
     
         [_, class_id] = self._consume_many_from_stream([TokenTypes.CLASS, TokenTypes.ID])
@@ -82,7 +86,7 @@ class Parser:
         parent_class = None
 
         if self.tokens.peep(0) == TokenTypes.EXTENDS:
-            [_, parent_class_id] = self._consume_many_from_stream(TokenTypes.EXTENDS, TokenTypes.ID)
+            [_, parent_class_id] = self._consume_many_from_stream([TokenTypes.EXTENDS, TokenTypes.ID])
             parent_class = parent_class_id.value
 
 
@@ -107,6 +111,8 @@ class Parser:
                 methods_list.append(consumed_method)
             else:
                 break
+
+        self._consume_single_from_stream(TokenTypes.RBRACE)
 
         return ClassNode(class_id, var_list, methods_list, parent_class = parent_class)
 
@@ -184,7 +190,7 @@ class Parser:
         return_expr = self._expr()
         self._consume_many_from_stream([TokenTypes.SEMICOLON, TokenTypes.RBRACE])
         
-        return MethodNode(method_id.value, consumed_type, formal_list, var_decl, statement_list)
+        return MethodNode(method_id.value, consumed_type, formal_list, var_decl, statement_list, return_expr)
 
 
     def _formal_list(self):
@@ -259,7 +265,7 @@ class Parser:
                 [id, _] = self._consume_many_from_stream([TokenTypes.ID, TokenTypes.ASSIGN])
                 expr = self._expr()
                 self._consume_single_from_stream(TokenTypes.SEMICOLON)
-                return AssignStmt( IdNode(id.value), expr)
+                return AssignStmt( id.value, expr)
                 
             elif next_peep == TokenTypes.LSQPAREN:
                 [id, _] = self._consume_many_from_stream([TokenTypes.ID, TokenTypes.LSQPAREN])
