@@ -121,6 +121,6 @@ class MethodNode(Ast):
         cnt = 0
         for stmt in self.stmt_list:
             edges.append( (stmt, 'inner_statement '.format(cnt)) )
-        edges.append( (self.get_return_expr(), 'return expr') )
+        #edges.append( (self.get_return_expr(), 'return expr') )
         print('method edges = ', edges)
         return edges

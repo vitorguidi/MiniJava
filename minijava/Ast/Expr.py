@@ -47,16 +47,16 @@ class ArrayAccessExpr(Expr):
         return [ (self.id, 'array id'), (self.pos_expr, 'position expr') ]
 
 class MethodCallExpr(Expr):
-    def __init__(self, object_id, method_id, expr_list):
-        self.object_id = object_id
+    def __init__(self, object, method_id, expr_list):
+        self.object = object
         self.method_id = method_id
         self.expr_list = expr_list
 
     def __str__(self):
-        return 'method call from obj {} with method {}'.format(self.object_id, self.method_id)
+        return 'Method call - {}'.format(self.method_id)
 
     def get_children(self):
-        edges = [ ]
+        edges = [ (self.object, 'object') ]
         cnt = 0
         for item in self.expr_list:
             edges.append( (item, 'argument {}'.format(cnt)) )
@@ -74,7 +74,7 @@ class ObjectAccessExpr(Expr):
         return 'object access'
 
     def get_children(self):
-        return [ (self.object_id, 'object id'), (self.variable_id, 'inner variable id') ]
+        return [ (self.object_id, 'object'), (self.variable_id, 'inner variable id') ]
 
 class ArrayLengthExpr(Expr):
     def __init__(self, id):

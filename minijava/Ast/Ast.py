@@ -48,3 +48,4 @@ class NodeType(Enum):
     ARRAY_LENGTH = 33
     OBJECT_ACCESS = 34
     METHOD_CALL = 35
+    RETURN_STMT = 36

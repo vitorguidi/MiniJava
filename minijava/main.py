@@ -1,10 +1,15 @@
 from MinijavaParser import Parser
-from Visitors import AstPrinter
+from Visitors import AstPrinter, CFGPrinter
+from CFG import *
 
-with open("./samples/smallTest.java") as file:
+with open("./samples/binSearch.java") as file:
     data='\n'.join(file.readlines())
 
 ast = Parser(data).get_ast()
 
-printer = AstPrinter(ast)
-printer.print()
+astprinter = AstPrinter(ast)
+astprinter.print()
+
+cfg = CFG(ast)
+cfg_printer = CFGPrinter(cfg)
+cfg_printer.print()

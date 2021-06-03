@@ -35,6 +35,14 @@ class IfStmt(Stmt):
     def get_children(self):
         return [ (self.main_stmt, 'main statement'), (self.alt_stmt, 'alt statement'), (self.cond_expr, 'conditional expression') ]
 
+    def get_main_stmt(self):
+        return self.main_stmt
+
+    def get_alt_stmt(self):
+        return self.alt_stmt
+
+    def get_cond_expr(self):
+        return self.cond_expr
 
 class WhileStmt(Stmt):
     def __init__(self, cond_expr, stmt):
@@ -47,6 +55,12 @@ class WhileStmt(Stmt):
 
     def get_children(self):
         return [ (self.stmt, 'statement'), (self.cond_expr, 'conditional expression') ]
+
+    def get_stmt(self):
+        return self.stmt
+
+    def get_cond_expr(self):
+        return self.cond_expr
 
 class AssignStmt(Stmt):
     def __init__(self, id, expr):
@@ -83,6 +97,17 @@ class PrintStmt(Stmt):
 
     def get_children(self):
         return [ (self.print_expr, 'expression to print') ]
+
+class ReturnStmt(Stmt):
+    def __init__(self, return_exp):
+        self.return_expr = return_exp
+        self.type = NodeType.RETURN_STMT
+
+    def __str__(self):
+        return 'return'
+
+    def get_children(self):
+        return [(self.return_expr, 'return expr')]
 
 class NullStmt(Stmt):
     def __init__(self):

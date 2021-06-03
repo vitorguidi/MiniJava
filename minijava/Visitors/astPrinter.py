@@ -19,10 +19,10 @@ class AstPrinter:
 
         self.dot.node(name=this_id, label=str(node))
 
-        print('dad = ', dad)
-        print('node = ', node)
-        print('children = ', node.get_children())
-        print('###')
+        # print('dad = ', dad)
+        # print('node = ', node)
+        # print('children = ', node.get_children())
+        # print('###')
 
         for (child, edge_label) in node.get_children():
             child = self.dfs(child, node)

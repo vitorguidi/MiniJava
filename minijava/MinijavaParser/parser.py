@@ -75,8 +75,6 @@ class Parser:
 
         peep = self.tokens.peep(0)
 
-        print('peepando = ', peep)
-
         if peep != TokenTypes.CLASS:
             return None
     
@@ -94,13 +92,6 @@ class Parser:
         # get var decls
         #should return None if nothing to match
         var_list = self._var_decl()
-
-        # while True:
-        #     consumed_var = self._var_decl()
-        #     if consumed_var:
-        #         var_list.append(consumed_var)
-        #     else:
-        #         break
         
         #get methods
         #should return None if nothing to match
@@ -170,13 +161,6 @@ class Parser:
 
         var_decl = self._var_decl()
 
-        # while True:
-        #     consumed_var = self._var_decl()
-
-        #     if not consumed_var:
-        #         break
-        #     var_decl.append(consumed_var)
-
         statement_list = []
 
         while True:
@@ -187,10 +171,13 @@ class Parser:
 
         self._consume_single_from_stream(TokenTypes.RETURN)
 
-        return_expr = self._expr()
+        return_stmt = ReturnStmt(self._expr())
+        print('return stmt = ', return_stmt)
+        
+        statement_list.append(return_stmt)
         self._consume_many_from_stream([TokenTypes.SEMICOLON, TokenTypes.RBRACE])
         
-        return MethodNode(method_id.value, consumed_type, formal_list, var_decl, statement_list, return_expr)
+        return MethodNode(method_id.value, consumed_type, formal_list, var_decl, statement_list, return_stmt)
 
 
     def _formal_list(self):
@@ -385,7 +372,7 @@ class Parser:
             peep = self.tokens.peep(0)
 
             if peep == TokenTypes.ID:
-                id = self._consume_single_from_stream(TokenTypes.ID).value
+                id = IdNode(self._consume_single_from_stream(TokenTypes.ID).value)
                 peep = self.tokens.peep(0)
 
                 #method access
